@@ -1,0 +1,25 @@
+<!-- #extend ./root.html title="Hello World!" -->
+{{ include "icons/globe.svg" }}
+
+<!-- #if filename == "index.html" -->
+<span>Hello World!</span>
+<span>Hello World! 2</span>
+<!-- /if -->
+
+<!-- you can provide an array like this: items=[{id=hello,name="this world!"}] -->
+<div>
+    <!-- #range items -->
+    <span class="{{ .id }}">
+        {{ .name }}
+    </span>
+    <!-- /range -->
+</div>
+
+<header class="example thing {{ .myinput }}" data-another="false">
+</header>
+
+<!-- this is a comment that will be kept. -->
+<!-- #if filename != "index.html" -->
+<span></span>
+<!-- /if -->
+<!-- /extend -->
