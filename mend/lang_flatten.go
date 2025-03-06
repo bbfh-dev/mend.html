@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 )
 
 const MAX_RECURSION_DEPTH = 32
@@ -108,6 +109,46 @@ func Flatten(proc *Processor, out *os.File, depth int) error {
 				discardContent = !declaration.Run(proc.Params)
 			} else {
 				discardContent = false
+			}
+
+		case RangeDeclaration:
+			if opening {
+				var builder strings.Builder
+
+			scanning:
+				for proc.Scan() {
+					line, lineIndent := proc.Line()
+					declaration, opening, err := ParseDeclaration(line)
+					if err != nil {
+						return proc.PrefixErr(fmt.Errorf("parsing statement: %w", err))
+					}
+
+					switch declaration.(type) {
+					case RangeDeclaration:
+						if !opening {
+							break scanning
+						}
+					}
+
+					builder.Write(Indent(lineIndent))
+					builder.Write(proc.Bytes())
+					builder.WriteRune('\n')
+				}
+
+				result := proc.Params.Get(declaration.Variable)
+				if !result.Exists() {
+					return proc.PrefixErr(fmt.Errorf("trying to range over a non-existant value %q", declaration.Variable))
+				}
+				if !result.IsArray() {
+					return proc.PrefixErr(fmt.Errorf("trying to range over a value %q which isn't an array", declaration.Variable))
+				}
+				for i := range result.Array() {
+					out.WriteString(strings.ReplaceAll(
+						builder.String(),
+						"#.",
+						fmt.Sprintf("%s.%d.", declaration.Variable, i),
+					))
+				}
 			}
 
 		}
