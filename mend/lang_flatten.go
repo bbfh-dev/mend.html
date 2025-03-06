@@ -49,7 +49,7 @@ func Flatten(proc *Processor, out *os.File, depth int) error {
 				}
 				defer file.Close()
 
-				nestedProc := NewProcessor(file, declaration.Params)
+				nestedProc := NewProcessor(file, proc.Params)
 				nestedProc.Indent = proc.Indent + lineIndent
 				nestedProcs.Add(nestedProc)
 
@@ -94,7 +94,7 @@ func Flatten(proc *Processor, out *os.File, depth int) error {
 				if declaration.Params == nil {
 					declaration.Params, _ = NewParameters("{}")
 				}
-				nestedProc := NewProcessor(file, declaration.Params)
+				nestedProc := NewProcessor(file, proc.Params)
 				nestedProc.Indent = proc.Indent + lineIndent
 				if err = Flatten(nestedProc, out, depth+1); err != nil {
 					return proc.PrefixErr(err)
