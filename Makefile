@@ -1,5 +1,5 @@
-VERSION := v0.1.0
-BINARY_NAME := app
+VERSION := v0.1.0-beta
+BINARY_NAME := mend
 
 run:
 	@go run -ldflags "-X main.Version=$(VERSION)" main.go $(ARGS)
