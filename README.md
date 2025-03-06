@@ -36,10 +36,12 @@ Run `mend --help` to display usage information.
 ## Example Usage
 
 ```bash
-mend build -s '{"title":"Hello World!","filename":"index.html","items":[]}' example/index.html
+mend build -s '{"title":"Hello World!","filename":"index.html","items":[]}' example/index.html > dist/output.html
 ```
 
-This command builds the `example/index.html` file along with all its dependencies using the provided JSON parameters.
+This command builds the `example/index.html` file along with all its dependencies into `dist/output.html` using the provided JSON parameters.
+
+Note that `mend build` outputs the result into **Stdout**, which is why `>` operator is used to redirect output into a file.
 
 # Language Specification
 
