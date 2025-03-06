@@ -7,17 +7,17 @@ Mend is a simple HTML template processor designed to, but not limited to be used
 
 <!-- vim-markdown-toc GFM -->
 
-* [Installation](#installation)
-* [Usage](#usage)
-    * [Example Usage](#example-usage)
-* [Language Specification](#language-specification)
-    * [1. Comment Statements](#1-comment-statements)
-        * [Extend Statement](#extend-statement)
-        * [If Statement](#if-statement)
-        * [Range Statement](#range-statement)
-        * [Include Statement](#include-statement)
-        * [Slot Statement](#slot-statement)
-    * [2. Expression Statements](#2-expression-statements)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Example Usage](#example-usage)
+- [Language Specification](#language-specification)
+  - [1. Comment Statements](#1-comment-statements)
+    - [Extend Statement](#extend-statement)
+    - [If Statement](#if-statement)
+    - [Range Statement](#range-statement)
+    - [Include Statement](#include-statement)
+    - [Slot Statement](#slot-statement)
+  - [2. Expression Statements](#2-expression-statements)
 
 <!-- vim-markdown-toc -->
 
