@@ -146,7 +146,7 @@ func Flatten(proc *Processor, out *os.File, depth int) error {
 					out.WriteString(strings.ReplaceAll(
 						builder.String(),
 						"#.",
-						fmt.Sprintf("%s.%d.", declaration.Variable, i),
+						fmt.Sprintf(".%s.%d.", declaration.Variable, i),
 					))
 				}
 			}
