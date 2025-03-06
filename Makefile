@@ -4,6 +4,9 @@ BINARY_NAME := app
 run:
 	@go run -ldflags "-X main.Version=$(VERSION)" main.go $(ARGS)
 
+run-example:
+	@go run -ldflags "-X main.Version=$(VERSION)" main.go build -s '{"title":"Hello World!","filename":"index.html","items":[{"id":1,"name":"test"},{"id":2,"name":"world"}]}' example/index.html
+
 test:
 	@go test -v ./...
 
