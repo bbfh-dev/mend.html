@@ -6,8 +6,8 @@
 <span>Hello World! 2</span>
 <!-- /if -->
 
-<!-- you can provide an array like this: items=[{id=hello,name="this world!"}] -->
 <div>
+    <header>Length: {{ length .items }}</header>
     <!-- #range items -->
     <span class="{{ #.id }}">
         {{ #.name }}
@@ -15,9 +15,11 @@
     <!-- /range -->
 </div>
 
-<header class="example thing {{ .myinput }}" data-another="false">
+<header class="example thing" data-another="Title: {{ .title }}">
     <!-- @include "./nested.html" -->
 </header>
+<!-- {{ this just happened to have {{ -->
+<!-- comments can also have {{ .filename}} parameters -->
 
 <!-- this is a comment that will be kept. -->
 <!-- #if filename != "index.html" -->
