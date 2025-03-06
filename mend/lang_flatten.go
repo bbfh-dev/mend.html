@@ -21,6 +21,7 @@ func Flatten(proc *Processor, out *os.File, depth int) error {
 		return ErrRecursive
 	}
 
+	var discardContent bool
 	nestedProcs := NewStack[*Processor]()
 
 	for proc.Scan() {
@@ -30,12 +31,15 @@ func Flatten(proc *Processor, out *os.File, depth int) error {
 			return proc.PrefixErr(fmt.Errorf("parsing statement: %w", err))
 		}
 
-		if declaration == nil {
+		if declaration == nil && !discardContent {
 			proc.WriteTo(out)
 		}
 
 		switch declaration := declaration.(type) {
 		case ExtendDeclaration:
+			if discardContent {
+				continue
+			}
 			if opening {
 				filepath := getRelativePath(proc.Name(), declaration.Filename)
 				file, err := os.OpenFile(filepath, os.O_RDONLY, os.ModePerm)
@@ -69,9 +73,15 @@ func Flatten(proc *Processor, out *os.File, depth int) error {
 			}
 
 		case SlotDeclaration:
+			if discardContent {
+				continue
+			}
 			return FoundSlot
 
 		case IncludeDeclaration:
+			if discardContent {
+				continue
+			}
 			if opening {
 				filepath := getRelativePath(proc.Name(), declaration.Filename)
 				file, err := os.OpenFile(filepath, os.O_RDONLY, os.ModePerm)
@@ -88,6 +98,16 @@ func Flatten(proc *Processor, out *os.File, depth int) error {
 				if err = Flatten(nestedProc, out, depth+1); err != nil {
 					return proc.PrefixErr(err)
 				}
+			}
+
+		case IfDeclaration:
+			if opening {
+				if discardContent {
+					continue
+				}
+				discardContent = !declaration.Run(proc.Params)
+			} else {
+				discardContent = false
 			}
 
 		}
