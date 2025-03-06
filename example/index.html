@@ -1,5 +1,5 @@
-<!-- #extend ./root.html title="Hello World!" -->
-{{ include "icons/globe.svg" }}
+<!-- #extend ./root.html {"title":"Hello World!"} -->
+<!-- @include "icons/globe.svg" -->
 
 <!-- #if filename == "index.html" -->
 <span>Hello World!</span>
@@ -16,6 +16,7 @@
 </div>
 
 <header class="example thing {{ .myinput }}" data-another="false">
+    <!-- @include "./nested.html" -->
 </header>
 
 <!-- this is a comment that will be kept. -->

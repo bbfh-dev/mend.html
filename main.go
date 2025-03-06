@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/bbfh-dev/mend.html/mend"
 	"github.com/bbfh-dev/parsex/parsex"
@@ -26,7 +25,7 @@ var BuildCLI = parsex.New("build", BuildProgram, []parsex.Arg{
 	{
 		Name:  "set",
 		Match: "--AUTO,-s",
-		Desc:  "specify parameter map in the following format: `{key=value;key=[{arg=3},'mixed array']}`",
+		Desc:  "specify parameter map in the following format: `{\"key\":\"value\",\"key\":[{\"arg\":3},\"mixed array\"]}`",
 		Check: parsex.ValidString,
 	},
 })
@@ -41,21 +40,6 @@ func Program(in parsex.Input, args ...string) error {
 }
 
 func BuildProgram(in parsex.Input, args ...string) error {
-	params := map[string]string{}
-	if in.Has("params") {
-		pairs := strings.Split(in["params"].(string), ";")
-		for _, pair := range pairs {
-			parts := strings.Split(pair, "=")
-			if len(parts) != 2 {
-				return fmt.Errorf("Invalid --param: %q must be `key=value`", pair)
-			}
-			key := parts[0]
-			value := parts[1]
-
-			params[key] = value
-		}
-	}
-
 	if len(args) == 0 {
 		return errors.New("No input file is provided")
 	}
@@ -64,29 +48,45 @@ func BuildProgram(in parsex.Input, args ...string) error {
 		return errors.New("Too many arguments! Only provide a single input file")
 	}
 
-	if _, err := os.Stat(args[0]); os.IsNotExist(err) {
+	inputFileName := args[0]
+	if _, err := os.Stat(inputFileName); os.IsNotExist(err) {
 		return err
 	}
 
-	outputFile, err := os.CreateTemp(os.TempDir(), "mend*.html")
+	params, err := mend.NewParameters(in.Default("set", "{}").(string))
+	if err != nil {
+		return fmt.Errorf("parsing params: %w", err)
+	}
+
+	tempFile, err := os.CreateTemp(os.TempDir(), "mend*.html")
 	if err != nil {
 		return fmt.Errorf("Creating temporary file: %w", err)
 	}
-	defer outputFile.Close()
+	defer tempFile.Close()
+	defer os.Remove(tempFile.Name())
 
-	parser, err := mend.NewParser(args[0], os.Stdout)
+	file, err := os.OpenFile(inputFileName, os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		return err
 	}
-	defer parser.Close()
+	defer file.Close()
 
-	parser.Params = params
-	return parser.Flatten()
+	prepassProc := mend.NewProcessor(file, params)
+	if err = mend.Flatten(prepassProc, tempFile, 1); err != nil {
+		return fmt.Errorf("flattening file: %w", err)
+	}
+
+	proc := mend.NewProcessor(tempFile, params)
+	if err = mend.Build(proc, os.Stdout); err != nil {
+		return fmt.Errorf("building file: %w", err)
+	}
+
+	return nil
 }
 
 func main() {
 	if err := CLI.FromArgs().Run(); err != nil {
-		os.Stderr.Write([]byte(err.Error()))
+		os.Stderr.Write(append([]byte(err.Error()), '\n'))
 		os.Exit(1)
 	}
 }
