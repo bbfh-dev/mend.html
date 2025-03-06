@@ -60,3 +60,42 @@ func (declaration IfDeclaration) Validate() error {
 hasOperations:
 	return nil
 }
+
+func (declaration IfDeclaration) Run(params *Parameters) bool {
+	result := params.Get(declaration.LeftExpression)
+	if !result.Exists() {
+		return false
+	}
+
+	switch declaration.Operator {
+	case OP_EQUAL:
+		return result.String() == declaration.RightExpression
+
+	case OP_NOT_EQUAL:
+		return result.String() != declaration.RightExpression
+
+	case OP_HAS:
+		if !result.IsArray() {
+			return false
+		}
+		for _, item := range result.Array() {
+			if item.String() == declaration.RightExpression {
+				return true
+			}
+		}
+		return false
+
+	case OP_LACKS:
+		if !result.IsArray() {
+			return false
+		}
+		for _, item := range result.Array() {
+			if item.String() == declaration.RightExpression {
+				return false
+			}
+		}
+		return true
+	}
+
+	return false
+}
